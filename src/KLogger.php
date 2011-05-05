@@ -159,10 +159,10 @@ class KLogger {
             . DIRECTORY_SEPARATOR
             . $this->_logFileName;
 
+    $this->_severityThreshold = $severity;
     if ($severity === self::OFF) {
       return;
     }
-    $this->_severityThreshold = $severity;
 
 
     if (file_exists($this->_logFilePath) && !is_writable($this->_logFilePath)) {
@@ -364,6 +364,14 @@ class KLogger {
       return true;
     } else {
       return false;
+    }
+  }
+  
+  public function deleteLog() {
+    if ($this->_severityThreshold != self::OFF) {
+      return false;
+    } else {
+      return unlink($this->_logFilePath);
     }
   }
 
