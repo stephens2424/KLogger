@@ -65,6 +65,7 @@ class KLogger {
    * @var string
    */
   private $_logFilePath = null;
+  private $_logFileName = null;
   /**
    * Current minimum logging threshold
    * @var integer
@@ -85,6 +86,7 @@ class KLogger {
       'opensuccess' => 'The log file was opened successfully.',
       'openfail' => 'The file could not be opened. Check permissions.',
   );
+  private $logsDirectory;
   /**
    * Default severity of log messages, if not specified
    * @var integer
@@ -107,58 +109,61 @@ class KLogger {
   private static $instances = array();
 
   /**
-   * Partially implements the Singleton pattern. Each $logDirectory gets one
+   * Partially implements the Singleton pattern. Each $logFilenamePrefix gets one
    * instance.
    *
-   * @param string  $logDirectory File path to the logging directory
+   * @param string  $logFilenamePrefix File path to the logging directory
    * @param integer $severity     One of the pre-defined severity constants
    * @return KLogger
    */
-  public static function instance($logDirectory = false, $severity = false) {
+  public static function instance($logFilenamePrefix = false, $severity = false) {
     if ($severity === false) {
       $severity = self::$_defaultSeverity;
     }
 
-    if ($logDirectory === false) {
+    if ($logFilenamePrefix === false) {
       if (count(self::$instances) > 0) {
         return current(self::$instances);
       } else {
-        $logDirectory = dirname(__FILE__);
+        $logFilenamePrefix = 'default';
       }
     }
 
-    if (in_array($logDirectory, self::$instances)) {
-      return self::$instances[$logDirectory];
+    if (in_array($logFilenamePrefix, self::$instances)) {
+      return self::$instances[$logFilenamePrefix];
     }
 
-    self::$instances[$logDirectory] = new self($logDirectory, $severity);
+    self::$instances[$logFilenamePrefix] = new self($logFilenamePrefix, $severity);
 
-    return self::$instances[$logDirectory];
+    return self::$instances[$logFilenamePrefix];
   }
 
   /**
    * Class constructor
    *
-   * @param string  $logDirectory File path to the logging directory
+   * @param string  $logFilenamePrefix File path to the logging directory
    * @param integer $severity     One of the pre-defined severity constants
    * @return void
    */
-  public function __construct($logDirectory, $severity) {
-    $logDirectory = rtrim($logDirectory, '\\/');
+  public function __construct($logFilenamePrefix, $severity) {
+    $logFilenamePrefix = rtrim($logFilenamePrefix, '\\/');
+
+    $this->logsDirectory = 'logs';
+    if (!file_exists($this->logsDirectory)) {
+      mkdir($this->logsDirectory, self::$_defaultPermissions, true);
+    }
+
+    $this->_logFileName = $logFilenamePrefix . '_log.txt';
+
+    $this->_logFilePath = $this->logsDirectory
+            . DIRECTORY_SEPARATOR
+            . $this->_logFileName;
 
     if ($severity === self::OFF) {
       return;
     }
-
-    $this->_logFilePath = $logDirectory
-            . DIRECTORY_SEPARATOR
-            . 'log'
-            . '.txt';
-
     $this->_severityThreshold = $severity;
-    if (!file_exists($logDirectory)) {
-      mkdir($logDirectory, self::$_defaultPermissions, true);
-    }
+
 
     if (file_exists($this->_logFilePath) && !is_writable($this->_logFilePath)) {
       $this->_logStatus = self::STATUS_OPEN_FAILED;
