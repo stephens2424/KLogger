@@ -159,8 +159,6 @@ class KLogger
 
         $this->_logFilePath = $logDirectory
             . DIRECTORY_SEPARATOR
-            . 'log_'
-            . date('Y-m-d')
             . '.txt';
 
         $this->_severityThreshold = $severity;
