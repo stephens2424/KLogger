@@ -347,6 +347,26 @@ class KLogger {
     }
   }
 
+  public function downloadLog() {
+    $fs = fopen($this->_logFilePath, "r");
+    if ($fs) {
+      $filename = $this->_logFileName;
+      header("Content-type: text/plain");
+      header("Content-Disposition: attachment; filename=$filename");
+      header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+      header("Content-Disposition: attachment; filename = $filename");
+      header("Content-Length: " . filesize($this->_logFilePath));
+      while(!feof($fs)) {
+        $buffer = fread($fs, 2048);
+        echo $buffer;
+      }
+      fclose($fs);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   private function _getTimeLine($level) {
     $time = date(self::$_dateFormat);
 
