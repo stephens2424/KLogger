@@ -2,3 +2,5 @@ src/test.php
 test/
 test/*
 test.php
+
+.DS_Store
