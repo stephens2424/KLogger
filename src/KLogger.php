@@ -116,7 +116,7 @@ class KLogger {
    * @param integer $severity     One of the pre-defined severity constants
    * @return KLogger
    */
-  public static function instance($logFilenamePrefix = false, $severity = false) {
+  public static function instance($logsDirectory = 'logs', $logFilenamePrefix = false, $severity = false) {
     if ($severity === false) {
       $severity = self::$_defaultSeverity;
     }
@@ -133,7 +133,7 @@ class KLogger {
       return self::$instances[$logFilenamePrefix];
     }
 
-    self::$instances[$logFilenamePrefix] = new self($logFilenamePrefix, $severity);
+    self::$instances[$logFilenamePrefix] = new self($logsDirectory, $logFilenamePrefix, $severity);
 
     return self::$instances[$logFilenamePrefix];
   }
@@ -145,10 +145,10 @@ class KLogger {
    * @param integer $severity     One of the pre-defined severity constants
    * @return void
    */
-  public function __construct($logFilenamePrefix, $severity) {
+  public function __construct($logsDirectory, $logFilenamePrefix, $severity) {
     $logFilenamePrefix = rtrim($logFilenamePrefix, '\\/');
 
-    $this->logsDirectory = 'logs';
+    $this->logsDirectory = $logsDirectory;
     if (!file_exists($this->logsDirectory)) {
       mkdir($this->logsDirectory, self::$_defaultPermissions, true);
     }
